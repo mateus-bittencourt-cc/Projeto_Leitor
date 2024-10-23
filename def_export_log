@@ -1,0 +1,65 @@
+# Função para exportar o log para um arquivo Excel e aplicar cores em abas específicas
+def exportar_log():
+    try:
+        caminho_arquivo = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Arquivos Excel", "*.xlsx"), ("Todos os Arquivos", "*.*")]
+        )
+        if caminho_arquivo:
+            # Criar um novo arquivo Excel
+            workbook = load_workbook(caminho_arquivo) if os.path.exists(caminho_arquivo) else Workbook()
+
+            # Criar ou limpar as abas
+            if 'Encontrados' in workbook.sheetnames:
+                del workbook['Encontrados']
+            sheet_encontrados = workbook.create_sheet('Encontrados')
+
+            if 'Local Incorreto' in workbook.sheetnames:
+                del workbook['Local Incorreto']
+            sheet_local_incorreto = workbook.create_sheet('Local Incorreto')
+
+            if 'Não Encontrados' in workbook.sheetnames:
+                del workbook['Não Encontrados']
+            sheet_nao_encontrados = workbook.create_sheet('Não Encontrados')
+
+            # Remove a aba padrão criada por padrão
+            if 'Sheet' in workbook.sheetnames:
+                del workbook['Sheet']
+
+            # Listas para armazenar as entradas categorizadas
+            verdes = []
+            amarelos = []
+            vermelhos = []
+
+            log_entries = log_text_widget.get(1.0, tk.END).strip().split("\n")
+            for entry in log_entries:
+                if "pintado em verde" in entry:  # Verde
+                    verdes.append(entry)
+                elif "pintado em amarelo" in entry:  # Amarelo
+                    amarelos.append(entry)
+                elif "não encontrado" in entry:  # Vermelho
+                    vermelhos.append(entry)
+
+            # Preencher as abas com os patrimônios encontrados e aplicar cores
+            linha = 1
+            for entry in verdes:
+                sheet_encontrados.append([entry])
+                sheet_encontrados.cell(row=linha, column=1).fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
+                linha += 1
+
+            linha = 1
+            for entry in amarelos:
+                sheet_local_incorreto.append([entry])
+                sheet_local_incorreto.cell(row=linha, column=1).fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+                linha += 1
+
+            linha = 1
+            for entry in vermelhos:
+                sheet_nao_encontrados.append([entry])
+                sheet_nao_encontrados.cell(row=linha, column=1).fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
+                linha += 1
+
+            workbook.save(caminho_arquivo)
+            messagebox.showinfo("Exportação", "Log exportado com sucesso.")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Erro ao exportar log: {e}")
