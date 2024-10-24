@@ -145,7 +145,7 @@ def exportar_log():
         )
         if caminho_arquivo:
             # Criar um novo arquivo Excel
-            workbook = load_workbook(caminho_arquivo) if os.path.exists(caminho_arquivo) else Workbook()
+            workbook = load_workbook(caminho_arquivo) if os.path.exists(caminho_arquivo) else workbook()
 
             # Criar ou limpar as abas
             if 'Encontrados' in workbook.sheetnames:
